@@ -35,6 +35,8 @@ my-custom-plugin/
   * Menu slug mcp-settings
   * Constants MCP_*
 
+---
+
 ### Why use a Singleton in a WordPress plugin?
 
 There is a singleton in `my-custom-plugin.php`, and you might be wondering why. 
@@ -180,6 +182,164 @@ In enterprise setups, devs often prefer:
 But for typical WordPress plugins?
 
 **Singleton is practical, clean, and very common.**
+
+
+---
+
+### Why use `final class` instead of just `class`?
+
+```php
+final class My_Plugin {
+```
+
+`final` means:
+
+> This class cannot be extended (no other class can `extends` it).
+
+
+#### Prevents Inheritance (On Purpose)
+
+If someone tries:
+
+```php
+class My_Custom_Extension extends My_Plugin {}
+```
+
+They’ll get a fatal error.
+
+That’s intentional.
+
+Why?
+
+Because your main plugin class is usually:
+
+* The bootstrapper
+* The orchestrator
+* The lifecycle manager
+* The singleton controller
+
+You typically **don’t want other code modifying that behavior via inheritance**.
+
+#### Protects Your Architecture
+
+Your main plugin class is not meant to be:
+
+* Overridden
+* Subclassed
+* Used as a base framework
+
+It’s meant to:
+
+> Load the plugin and wire everything together.
+
+By marking it `final`, you’re saying:
+
+“This class is complete. It is not a base class.”
+
+#### Prevents Unexpected Behavior
+
+Inheritance allows method overriding:
+
+```php
+class My_Extension extends My_Plugin {
+    public function init() {
+        // completely different logic
+    }
+}
+```
+
+Now your plugin behavior is unpredictable.
+
+Using `final` ensures:
+
+* Hooks are added only once
+* Lifecycle methods are not overridden
+* Core behavior stays stable
+
+#### It Matches the Singleton Pattern
+
+Most singletons are declared `final` because:
+
+* Singletons are meant to have exactly one instance
+* Inheritance can break that guarantee
+* Extending a singleton can create subtle bugs
+
+In fact, a “proper” strict singleton usually looks like:
+
+```php
+final class My_Plugin {
+
+    private static $instance = null;
+
+    private function __construct() {}
+
+    private function __clone() {}
+
+    private function __wakeup() {}
+
+    public static function instance() {
+        if ( null === self::$instance ) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+}
+```
+
+Notice how it locks everything down.
+
+#### Performance? (Minor)
+
+There’s a tiny performance benefit because PHP doesn’t need to check for inheritance.
+
+But honestly — that’s not why we use it.
+
+Architecture clarity is the real reason.
+
+#### When NOT to use `final`
+
+Do NOT use `final` when:
+
+* You are building a framework
+* You expect developers to extend your class
+* You are designing abstract base classes
+* You want customization via inheritance
+
+Example:
+
+```php
+abstract class Base_Controller {}
+```
+
+That’s meant to be extended — so not `final`.
+
+#### WordPress-Specific Reality
+
+Most modern, well-structured WP plugins:
+
+* Use `final` on the main plugin class
+* Use `final` on internal utility classes
+* Avoid inheritance as extension mechanism
+* Prefer hooks, filters, and composition instead
+
+Because in WordPress:
+
+> Extensibility should happen via hooks, not class inheritance.
+
+#### Simple Rule of Thumb
+
+Use `final` when:
+
+* The class is not meant to be extended
+* It controls plugin lifecycle
+* It implements singleton
+* It’s internal architecture
+
+Use normal `class` when:
+
+* It’s a base class
+* It’s meant for extension
+* It’s part of a public API
 
 
 ---
