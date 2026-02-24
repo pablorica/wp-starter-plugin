@@ -30,7 +30,7 @@ final class MCP_Starter_Plugin {
 	private static $instance = null;
 
 	/** Plugin version */
-	const VERSION = '1.0.0';
+	const VERSION = '1.0.1';
 
 	/** Minimum WP version (optional) */
 	const MIN_WP_VERSION = '6.0';
