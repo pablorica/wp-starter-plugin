@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name:       My Custom Plugin (Starter)
- * Version:           1.0.0
+ * Version:           1.0.1
  * Requires           PHP: 7.2
  * Plugin URI:        https://codigo.co.uk/
  * Description:       Reusable starter plugin scaffold.
