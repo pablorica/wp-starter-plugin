@@ -1,48 +1,104 @@
-# Wordpress - ignore core, configuration, examples, uploads and logs.
-# https://github.com/github/gitignore/blob/main/WordPress.gitignore
 
-# Core
-#
-# Note: if you want to stage/commit WP core files
-# you can delete this whole section/until Configuration.
-/wp-admin/
-/wp-content/index.php
-/wp-content/languages
-/wp-content/plugins/index.php
-/wp-content/themes/index.php
-/wp-includes/
-/index.php
-/license.txt
-/readme.html
-/wp-*.php
-/xmlrpc.php
 
-# Configuration
-wp-config.php
+# ignore all files starting with . or ~
+.*
+~*
 
-# Example themes
-/wp-content/themes/twenty*/
+# ignore node dependency directories
+node_modules/
+dist/
 
-# Example plugin
-/wp-content/plugins/hello.php
+# ignore OS generated files
+ehthumbs.db
+Thumbs.db
+.Trashes
 
-# Uploads
-/wp-content/uploads/
+# ignore Editor files
+*.sublime-project
+*.sublime-workspace
+*.komodoproject
 
-# Log files
+# ignore log files and databases
 *.log
+*.sql
+*.sqlite
 
-# htaccess
-/.htaccess
+# ignore compiled files
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
 
-# All plugins
-#
-# Note: If you wish to whitelist plugins,
-# uncomment the next line
-#/wp-content/plugins
+# ignore packaged files
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
 
-# All themes
-#
-# Note: If you wish to whitelist themes,
-# uncomment the next line
-#/wp-content/themes
+# ignore files that a local computer might use for its own convenience
+.DS_Store
+*.swp
+*.pyc
+
+
+# local build tools
+.vagrant
+.idea
+*.sassc
+*.scssc
+*.codekit
+*.sh
+*.orig
+
+
+# local config files 
+vetur.config.js
+tsconfig.json
+
+
+# Ignore potentially dangerous files (dependabot alerts)
+yarn.lock 
+package-lock.json
+
+
+
+
+# -------------------------
+# BEGIN Whitelisted Files
+# -------------------------
+
+# track these files, if they exist
+!.gitignore
+!.editorconfig
+!.phpcs.xml.dist
+!README.md
+!composer.json
+# Migration file
+# !*.sql.gz
+
+# track favicon files, if they exist
+!android-chrome-*.png
+!apple-touch-icon*.png
+!browserconfig.xml
+!favicon*.png
+!favicon*.ico
+!manifest.json
+!mstile-*.png
+!safari-pinned-tab.svg
+!site.webmanifest
+
+
+# track example files, if they exist
+!.env.example
+!Caddyfile.example
+
+# track Docker files, if they exist
+!docker-compose.yml
+!docker-compose.override.yml
+
