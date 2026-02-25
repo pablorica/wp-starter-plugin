@@ -344,6 +344,188 @@ Use normal `class` when:
 
 ---
 
+### What is the purpose of `uninstall.php`?
+
+>  `uninstall.php` is automatically executed by WordPress — but only when the plugin is deleted, not when it is deactivated.
+
+
+#### When Is `uninstall.php` Called?
+
+It runs **only when the user clicks:**
+
+**Plugins → Delete**
+
+Not when:
+
+* ❌ Deactivating the plugin
+* ❌ Updating the plugin
+* ❌ Activating the plugin
+
+Only when the plugin is permanently deleted.
+
+#### How WordPress Knows to Call It
+
+When you delete a plugin, WordPress checks:
+
+1. Does the plugin have an `uninstall.php` file?
+2. If yes → it loads that file directly.
+3. If not → it checks for a `register_uninstall_hook()`.
+
+So this works automatically:
+
+```bash
+my-plugin/
+  my-plugin.php
+  uninstall.php   ← WordPress detects this
+```
+
+You do NOT need to include it manually.
+
+#### What Happens Internally
+
+When deleting a plugin, WordPress does something like:
+
+```php
+define( 'WP_UNINSTALL_PLUGIN', true );
+include 'uninstall.php';
+```
+
+That’s why in `uninstall.php` we always add:
+
+```php
+if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
+    exit;
+}
+```
+
+That prevents someone from directly accessing:
+
+```bash
+https://yoursite.com/wp-content/plugins/my-plugin/uninstall.php
+```
+
+this is a security best practice 
+
+#### Difference: Deactivation vs Uninstall
+
+##### Deactivation
+
+Triggered by:
+
+```php
+register_deactivation_hook()
+```
+
+Use this for:
+
+* Flushing rewrite rules
+* Clearing scheduled cron jobs
+* Temporary cleanup
+
+But the plugin still exists.
+
+##### Uninstall (Delete)
+
+Triggered by:
+
+* `uninstall.php`
+  OR
+* `register_uninstall_hook()`
+
+Use this for:
+
+* Deleting options
+* Deleting custom tables
+* Removing CPT data (if appropriate)
+* Cleaning transients
+* Full cleanup
+
+This is permanent removal.
+
+#### Alternative: `register_uninstall_hook()`
+
+Instead of `uninstall.php`, you can do:
+
+```php
+register_uninstall_hook( __FILE__, 'my_plugin_uninstall' );
+
+function my_plugin_uninstall() {
+    delete_option( 'my_option' );
+}
+```
+
+##### Why many devs prefer `uninstall.php`
+
+Because:
+
+* It loads fewer things
+* It runs in isolation
+* Cleaner separation
+* Safer for large plugins
+
+WordPress does NOT load the full plugin when running `uninstall.php`.
+
+That’s important.
+
+#### Important Detail
+
+When `uninstall.php` runs:
+
+* Your main plugin class is NOT loaded
+* Constants are NOT defined
+* Singleton does NOT exist
+
+So you must write standalone cleanup code.
+
+For example, this will fail:
+
+```php
+My_Plugin::instance()->cleanup();
+```
+
+Instead, write plain procedural cleanup code.
+
+#### Best Practice for Cleanup
+
+Example:
+
+```php
+if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
+    exit;
+}
+
+// Delete options
+delete_option( 'mcp_installed_at' );
+
+// If multisite
+delete_site_option( 'mcp_installed_at' );
+```
+
+If you create custom tables, delete them here.
+
+#### Why WordPress Designed It This Way
+
+Because uninstall is:
+
+* A destructive action
+* Should not rely on plugin runtime logic
+* Should not depend on classes
+* Should be safe and isolated
+
+So WordPress loads a minimal environment.
+
+#### Simple Mental Model
+
+| Action     | What runs                    |
+| ---------- | ---------------------------- |
+| Activate   | `register_activation_hook`   |
+| Deactivate | `register_deactivation_hook` |
+| Delete     | `uninstall.php`              |
+
+
+---
+
+
 ## Changelog
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
